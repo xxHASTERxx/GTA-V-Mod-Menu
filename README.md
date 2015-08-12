@@ -1,7 +1,7 @@
 # GTA-V-Mod-Menu
 
 
-GTAIV SOURCE MENU
+GTA V SOURCE MENU
 
 This is the home of my xxHASTERxx Modmenu for GTA V XBOX360.
 
