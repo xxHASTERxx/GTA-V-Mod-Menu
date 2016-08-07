@@ -6,11 +6,10 @@
 #include <xkelib.h>
 
 void GetServerIp(PBYTE pbOutIp);
+void GetCPUDec();
 void SecondaryDecryptTrampoline(PBYTE pbInData);
 void ServerConnectionInit();
 void MenuSecurityInit();
-#ifdef x_startup
-void CPU_CheckInit();
-#endif
+void AutorisationInit();// penis sweg
 
 #endif

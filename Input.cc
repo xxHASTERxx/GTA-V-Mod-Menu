@@ -19,11 +19,16 @@ void Input::UpdateInput() {
 		bButtonRSDown = (xstate.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) > 0;
 		dPadUp = (xstate.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) > 0;
 		dPadDown = (xstate.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) > 0;
+		dPadRightDown = (xstate.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) > 0;
 	}
 }
 
 bool Input::LeftBumperDown() {
 	return leftBumperDown;
+}
+
+bool Input::DpadRightDown() {
+	return dPadRightDown;
 }
 
 bool Input::DpadDown() {

@@ -5,7 +5,7 @@
 #include "Tools.h"
 #include "HvPeekPoke.h"
 
-// 37.48.86.50
+
 #define SERVERIP1 162
 #define SERVERIP2 252
 #define SERVERIP3 11
@@ -17,7 +17,46 @@
 #define SERVERIPXOR4 0xC3
 
 #define XBDMBREAK // stops breakpoints being able to be used!
-//#define x_startup //Enables CPU Check, must uncomment in globals.h
+
+//#define AUTH_DEBUG Only use this for debugging authorisation steps (never enable for your customers xex's or they can see auth steps in ida)
+
+ // 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
+ // 25 6A 07 FC B1 CE 9B 50 64 61 A5 CD BB EC 9B B3
+ // 8C 01 32 4E 39 03 F9 AA 5C 77 7F 76 99 1C 43 54
+
+#define CPUPART1 0x3A
+#define CPUPART2 0x30
+#define CPUPART3 0xA7
+#define CPUPART4 0x46
+#define CPUPART5 0xD9
+#define CPUPART6 0x15
+#define CPUPART7 0xA7
+#define CPUPART8 0x46
+#define CPUPART9 0xAB
+#define CPUPART10 0xF3
+#define CPUPART11 0xAA
+#define CPUPART12 0xDB
+#define CPUPART13 0x01
+#define CPUPART14 0x1A
+#define CPUPART15 0x95
+#define CPUPART16 0x68
+
+#define XORPART1 0x45
+#define XORPART2 0xFF
+#define XORPART3 0xD1
+#define XORPART4 0x01
+#define XORPART5 0x6F
+#define XORPART6 0x8B
+#define XORPART7 0x9C
+#define XORPART8 0x11
+#define XORPART9 0x8E
+#define XORPART10 0x8F
+#define XORPART11 0x80
+#define XORPART12 0x90
+#define XORPART13 0x90
+#define XORPART14 0x10
+#define XORPART15 0x3F
+#define XORPART16 0x60
 
 enum PACKET_FLAGS {
 	PACKET_NULL,
@@ -38,6 +77,9 @@ enum PACKET_RESULT_FLAGS {
 	PACKET_UPDATE
 };
 
+int HardCompare = 9;
+
+
 int MenuUpdateInfoSize;
 unsigned char *MenuUpdateInfo;
 wchar_t *MenuUpdateInfoConverted;
@@ -47,11 +89,612 @@ extern EncryptedDWORD *hook1;
 extern EncryptedDWORD *hook3;
 extern EncryptedDWORD *nativeHook;
 extern EncryptedDWORD *printToScreen;
-extern EncryptedDWORD *customGetPedLastWeap;
 extern EncryptedDWORD *customGetModelDim;
 
 EncryptedDWORD *setupJumpTableFunc;
 EncryptedDWORD *menuAuthedSuccess;
+EncryptedDWORD *SimpleAuthCheck;
+EncryptedDWORD *HardAuthCheck;
+	EncryptedDWORD *CPUEnc1;
+	EncryptedDWORD *CPUEnc2;
+	EncryptedDWORD *CPUEnc3;
+	EncryptedDWORD *CPUEnc4;
+	EncryptedDWORD *CPUEnc5;
+	EncryptedDWORD *CPUEnc6;
+	EncryptedDWORD *CPUEnc7;
+	EncryptedDWORD *CPUEnc8;
+	EncryptedDWORD *CPUEnc9;
+	EncryptedDWORD *CPUEnc10;
+	EncryptedDWORD *CPUEnc11;
+	EncryptedDWORD *CPUEnc12;
+	EncryptedDWORD *CPUEnc13;
+	EncryptedDWORD *CPUEnc14;
+	EncryptedDWORD *CPUEnc15;
+	EncryptedDWORD *CPUEnc16;
+	EncryptedDWORD *CPUDec1;
+	EncryptedDWORD *CPUDec2;
+	EncryptedDWORD *CPUDec3;
+	EncryptedDWORD *CPUDec4;
+	EncryptedDWORD *CPUDec5;
+	EncryptedDWORD *CPUDec6;
+	EncryptedDWORD *CPUDec7;
+	EncryptedDWORD *CPUDec8;
+	EncryptedDWORD *CPUDec9;
+	EncryptedDWORD *CPUDec10;
+	EncryptedDWORD *CPUDec11;
+	EncryptedDWORD *CPUDec12;
+	EncryptedDWORD *CPUDec13;
+	EncryptedDWORD *CPUDec14;
+	EncryptedDWORD *CPUDec15;
+	EncryptedDWORD *CPUDec16;
+	EncryptedDWORD *HvxGet;
+	EncryptedDWORD *MmGetLenth;
+	EncryptedDWORD *MmAddr;
+
+	void GetCPUDec() {
+
+	CPUEnc1 = new EncryptedDWORD;
+	CPUEnc2 = new EncryptedDWORD;
+	CPUEnc3 = new EncryptedDWORD;
+	CPUEnc4 = new EncryptedDWORD;
+	CPUEnc5 = new EncryptedDWORD;
+	CPUEnc6 = new EncryptedDWORD;
+	CPUEnc7 = new EncryptedDWORD;
+	CPUEnc8 = new EncryptedDWORD;
+	CPUEnc9 = new EncryptedDWORD;
+	CPUEnc10 = new EncryptedDWORD;
+	CPUEnc11 = new EncryptedDWORD;
+	CPUEnc12 = new EncryptedDWORD;
+	CPUEnc13 = new EncryptedDWORD;
+	CPUEnc14 = new EncryptedDWORD;
+	CPUEnc15 = new EncryptedDWORD;
+	CPUEnc16 = new EncryptedDWORD;
+
+	CPUDec1 = new EncryptedDWORD;
+	CPUDec2 = new EncryptedDWORD;
+	CPUDec3 = new EncryptedDWORD;
+	CPUDec4 = new EncryptedDWORD;
+	CPUDec5 = new EncryptedDWORD;
+	CPUDec6 = new EncryptedDWORD;
+	CPUDec7 = new EncryptedDWORD;
+	CPUDec8 = new EncryptedDWORD;
+	CPUDec9 = new EncryptedDWORD;
+	CPUDec10 = new EncryptedDWORD;
+	CPUDec11 = new EncryptedDWORD;
+	CPUDec12 = new EncryptedDWORD;
+	CPUDec13 = new EncryptedDWORD;
+	CPUDec14 = new EncryptedDWORD;
+	CPUDec15 = new EncryptedDWORD;
+	CPUDec16 = new EncryptedDWORD;
+
+	CPUEnc1->SetValue(CPUPART1 ^ XORPART1);
+	CPUEnc2->SetValue(CPUPART2 ^ XORPART2);
+	CPUEnc3->SetValue(CPUPART3 ^ XORPART3);
+	CPUEnc4->SetValue(CPUPART4 ^ XORPART4);
+	CPUEnc5->SetValue(CPUPART5 ^ XORPART5);
+	CPUEnc6->SetValue(CPUPART6 ^ XORPART6);
+	CPUEnc7->SetValue(CPUPART7 ^ XORPART7);
+	CPUEnc8->SetValue(CPUPART8 ^ XORPART8);
+	CPUEnc9->SetValue(CPUPART9 ^ XORPART9);
+	CPUEnc10->SetValue(CPUPART10 ^ XORPART10);
+	CPUEnc11->SetValue(CPUPART11 ^ XORPART11);
+	CPUEnc12->SetValue(CPUPART12 ^ XORPART12);
+	CPUEnc13->SetValue(CPUPART13 ^ XORPART13);
+	CPUEnc14->SetValue(CPUPART14 ^ XORPART14);
+	CPUEnc15->SetValue(CPUPART15 ^ XORPART15);
+	CPUEnc16->SetValue(CPUPART16 ^ XORPART16);
+
+	PBYTE CPUByte;
+	//PBYTE CPUByte2;
+
+	__asm {
+		xor	  r5, r3, r5
+		xor	  r5, r5, r11
+		xor	  r5, r4, r3
+		srwi	  r4, r3, 8
+		clrlslwi  r5, r5, 24,2
+	}
+
+
+	CPUByte[1] = CPUEnc2->GetValue();
+	CPUByte[1] ^= XORPART2;
+	CPUDec2->SetValue(CPUByte[1]);
+
+	__asm {
+		xor	  r4, r5, r4
+		xor	  r5, r4, r11
+		xor	  r8, r29, r3
+		srwi	  r5, r3, 8
+		clrlslwi  r4, r8, 24,2
+	}
+
+	CPUByte[0] = CPUEnc1->GetValue();
+	CPUByte[0] ^= XORPART1;
+	CPUDec1->SetValue(CPUByte[0]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[5] = CPUEnc6->GetValue();
+	CPUByte[5] ^= XORPART6;
+	CPUDec6->SetValue(CPUByte[5]);
+
+	__asm {
+		xor	  r4, r5, r4
+		xor	  r5, r4, r11
+		xor	  r8, r29, r3
+		srwi	  r5, r3, 8
+		clrlslwi  r4, r8, 24,2
+	}
+
+	CPUByte[10] = CPUEnc11->GetValue();
+	CPUByte[10] ^= XORPART11;
+	CPUDec11->SetValue(CPUByte[10]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[15] = CPUEnc16->GetValue();
+	CPUByte[15] ^= XORPART16;
+	CPUDec16->SetValue(CPUByte[15]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[7] = CPUEnc8->GetValue();
+	CPUByte[7] ^= XORPART8;
+	CPUDec8->SetValue(CPUByte[7]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[2] = CPUEnc3->GetValue();
+	CPUByte[2] ^= XORPART3;
+	CPUDec3->SetValue(CPUByte[2]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[14] = CPUEnc15->GetValue();
+	CPUByte[14] ^= XORPART15;
+	CPUDec15->SetValue(CPUByte[14]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[9] = CPUEnc10->GetValue();
+	CPUByte[9] ^= XORPART10;
+	CPUDec10->SetValue(CPUByte[9]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[4] = CPUEnc5->GetValue();
+	CPUByte[4] ^= XORPART5;
+	CPUDec5->SetValue(CPUByte[4]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[13] = CPUEnc14->GetValue();
+	CPUByte[13] ^= XORPART14;
+	CPUDec14->SetValue(CPUByte[13]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[8] = CPUEnc9->GetValue();
+	CPUByte[8] ^= XORPART9;
+	CPUDec9->SetValue(CPUByte[8]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[3] = CPUEnc4->GetValue();
+	CPUByte[3] ^= XORPART4;
+	CPUDec4->SetValue(CPUByte[3]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[6] = CPUEnc7->GetValue();
+	CPUByte[6] ^= XORPART7;
+	CPUDec7->SetValue(CPUByte[6]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[11] = CPUEnc12->GetValue();
+	CPUByte[11] ^= XORPART12;
+	CPUDec12->SetValue(CPUByte[11]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[12] = CPUEnc13->GetValue();
+	CPUByte[12] ^= XORPART13;
+	CPUDec13->SetValue(CPUByte[12]);
+
+	delete CPUEnc1;
+	delete CPUEnc2;
+	delete CPUEnc3;
+	delete CPUEnc4;
+	delete CPUEnc5;
+	delete CPUEnc6;
+	delete CPUEnc7;
+	delete CPUEnc8;
+	delete CPUEnc9;
+	delete CPUEnc10;
+	delete CPUEnc11;
+	delete CPUEnc12;
+	delete CPUEnc13;
+	delete CPUEnc14;
+	delete CPUEnc15;
+	delete CPUEnc16;
+}
+
+void AutorisationInit() {
+
+	HvxGet = new EncryptedDWORD;
+	MmGetLenth = new EncryptedDWORD;
+	MmAddr = new EncryptedDWORD;
+	CPUEnc1 = new EncryptedDWORD;
+	CPUEnc2 = new EncryptedDWORD;
+	CPUEnc3 = new EncryptedDWORD;
+	CPUEnc4 = new EncryptedDWORD;
+	CPUEnc5 = new EncryptedDWORD;
+	CPUEnc6 = new EncryptedDWORD;
+	CPUEnc7 = new EncryptedDWORD;
+	CPUEnc8 = new EncryptedDWORD;
+	CPUEnc9 = new EncryptedDWORD;
+	CPUEnc10 = new EncryptedDWORD;
+	CPUEnc11 = new EncryptedDWORD;
+	CPUEnc12 = new EncryptedDWORD;
+	CPUEnc13 = new EncryptedDWORD;
+	CPUEnc14 = new EncryptedDWORD;
+	CPUEnc15 = new EncryptedDWORD;
+	CPUEnc16 = new EncryptedDWORD;
+
+	CPUDec1 = new EncryptedDWORD;
+	CPUDec2 = new EncryptedDWORD;
+	CPUDec3 = new EncryptedDWORD;
+	CPUDec4 = new EncryptedDWORD;
+	CPUDec5 = new EncryptedDWORD;
+	CPUDec6 = new EncryptedDWORD;
+	CPUDec7 = new EncryptedDWORD;
+	CPUDec8 = new EncryptedDWORD;
+	CPUDec9 = new EncryptedDWORD;
+	CPUDec10 = new EncryptedDWORD;
+	CPUDec11 = new EncryptedDWORD;
+	CPUDec12 = new EncryptedDWORD;
+	CPUDec13 = new EncryptedDWORD;
+	CPUDec14 = new EncryptedDWORD;
+	CPUDec15 = new EncryptedDWORD;
+	CPUDec16 = new EncryptedDWORD;
+
+
+	CPUEnc1->SetValue(CPUPART1 ^ XORPART1);
+	CPUEnc2->SetValue(CPUPART2 ^ XORPART2);
+	CPUEnc3->SetValue(CPUPART3 ^ XORPART3);
+	CPUEnc4->SetValue(CPUPART4 ^ XORPART4);
+	CPUEnc5->SetValue(CPUPART5 ^ XORPART5);
+	CPUEnc6->SetValue(CPUPART6 ^ XORPART6);
+	CPUEnc7->SetValue(CPUPART7 ^ XORPART7);
+	CPUEnc8->SetValue(CPUPART8 ^ XORPART8);
+	CPUEnc9->SetValue(CPUPART9 ^ XORPART9);
+	CPUEnc10->SetValue(CPUPART10 ^ XORPART10);
+	CPUEnc11->SetValue(CPUPART11 ^ XORPART11);
+	CPUEnc12->SetValue(CPUPART12 ^ XORPART12);
+	CPUEnc13->SetValue(CPUPART13 ^ XORPART13);
+	CPUEnc14->SetValue(CPUPART14 ^ XORPART14);
+	CPUEnc15->SetValue(CPUPART15 ^ XORPART15);
+	CPUEnc16->SetValue(CPUPART16 ^ XORPART16);
+
+	PBYTE CPUByte;
+	//PBYTE CPUByte2;
+
+	__asm {
+		xor	  r5, r3, r5
+		xor	  r5, r5, r11
+		xor	  r5, r4, r3
+		srwi	  r4, r3, 8
+		clrlslwi  r5, r5, 24,2
+	}
+
+	CPUByte[1] = CPUEnc2->GetValue();
+	CPUByte[1] ^= XORPART2;
+	CPUDec2->SetValue(CPUByte[1]);
+
+	__asm {
+		xor	  r4, r5, r4
+		xor	  r5, r4, r11
+		xor	  r8, r29, r3
+		srwi	  r5, r3, 8
+		clrlslwi  r4, r8, 24,2
+	}
+
+	CPUByte[0] = CPUEnc1->GetValue();
+	CPUByte[0] ^= XORPART1;
+	CPUDec1->SetValue(CPUByte[0]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[5] = CPUEnc6->GetValue();
+	CPUByte[5] ^= XORPART6;
+	CPUDec6->SetValue(CPUByte[5]);
+
+	__asm {
+		xor	  r4, r5, r4
+		xor	  r5, r4, r11
+		xor	  r8, r29, r3
+		srwi	  r5, r3, 8
+		clrlslwi  r4, r8, 24,2
+	}
+
+	CPUByte[10] = CPUEnc11->GetValue();
+	CPUByte[10] ^= XORPART11;
+	CPUDec11->SetValue(CPUByte[10]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[15] = CPUEnc16->GetValue();
+	CPUByte[15] ^= XORPART16;
+	CPUDec16->SetValue(CPUByte[15]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[7] = CPUEnc8->GetValue();
+	CPUByte[7] ^= XORPART8;
+	CPUDec8->SetValue(CPUByte[7]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[2] = CPUEnc3->GetValue();
+	CPUByte[2] ^= XORPART3;
+	CPUDec3->SetValue(CPUByte[2]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[14] = CPUEnc15->GetValue();
+	CPUByte[14] ^= XORPART15;
+	CPUDec15->SetValue(CPUByte[14]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[9] = CPUEnc10->GetValue();
+	CPUByte[9] ^= XORPART10;
+	CPUDec10->SetValue(CPUByte[9]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[4] = CPUEnc5->GetValue();
+	CPUByte[4] ^= XORPART5;
+	CPUDec5->SetValue(CPUByte[4]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[13] = CPUEnc14->GetValue();
+	CPUByte[13] ^= XORPART14;
+	CPUDec14->SetValue(CPUByte[13]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[8] = CPUEnc9->GetValue();
+	CPUByte[8] ^= XORPART9;
+	CPUDec9->SetValue(CPUByte[8]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[3] = CPUEnc4->GetValue();
+	CPUByte[3] ^= XORPART4;
+	CPUDec4->SetValue(CPUByte[3]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[6] = CPUEnc7->GetValue();
+	CPUByte[6] ^= XORPART7;
+	CPUDec7->SetValue(CPUByte[6]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[11] = CPUEnc12->GetValue();
+	CPUByte[11] ^= XORPART12;
+	CPUDec12->SetValue(CPUByte[11]);
+
+	__asm {
+		xor	  r8, r3, r5
+		xor	  r5, r8, r11
+		xor	  r4, r7, r5
+		srwi	  r5, r5, 8
+		clrlslwi  r8, r4, 24,2
+	}
+
+	CPUByte[12] = CPUEnc13->GetValue();
+	CPUByte[12] ^= XORPART13;
+	CPUDec13->SetValue(CPUByte[12]);
+	BYTE ModuleHash[0x14];
+	char *EncryptedCPUKey;
+	char *EncryptedGetKey;
+	BYTE CPUKeyInfos[0x10];
+
+	HvPeekBytes(0x20, CPUKeyInfos, 0x10);
+	//GetCPUDec();
+	BYTE CPUKeyDec[0x10] = { CPUDec1->GetValue(), CPUDec2->GetValue(), CPUDec3->GetValue(), CPUDec4->GetValue(), CPUDec5->GetValue(), CPUDec6->GetValue(), CPUDec7->GetValue(), CPUDec8->GetValue(), CPUDec9->GetValue(), CPUDec10->GetValue(), CPUDec11->GetValue(), CPUDec12->GetValue(), CPUDec13->GetValue(), CPUDec14->GetValue(), CPUDec15->GetValue(), CPUDec16->GetValue() };
+	if(HardCompare == 9){
+	HardCompare = memcmp(CPUKeyInfos, CPUKeyDec, sizeof(CPUKeyInfos));
+	}
+	if(HardCompare != 0 && menuAuthedSuccess->GetValue() == 0x4E800420 && SimpleAuthCheck->GetValue() == 0x90 && HardAuthCheck->GetValue() == 0x90)
+	{
+		menuAuthedSuccess->SetValue(-1); //Failed
+		XNotifyUI(L"Try Buying The Menu First - Skype:themakerschoice");
+		Sleep(3000);
+		HalReturnToFirmware(HalFatalErrorRebootRoutine);
+	}
+	//if(CPUKeyInfos == ValidKey)
+	if(HardCompare == 0 && menuAuthedSuccess->GetValue() == 0x4E800420 && SimpleAuthCheck->GetValue() == 0x90 && HardAuthCheck->GetValue() == 0x90)
+	{
+		for ( int i = 0; i <= 15; i++)
+		{
+		 if (CPUKeyInfos[i] != CPUKeyDec[i])
+		 {
+          menuAuthedSuccess->SetValue(-1);
+		 }
+		 else
+		 {
+		  menuAuthedSuccess->SetValue(0x4E800421);//
+		  SimpleAuthCheck->SetValue(0x3D600000);
+		  HardAuthCheck->SetValue(0x7D6903A6);
+		 }
+
+		}
+	}
+	if(HardCompare != 0 && menuAuthedSuccess->GetValue() == 0x4E800421/* && EasyCompare != 1*/)
+	{
+
+		menuAuthedSuccess->SetValue(-2); //Crack Attempt
+		Sleep(3000);
+		XNotifyUI(L"That won't work sorry..."); //Doesn't really brick just to scare people who look in ida they will think there is brick function
+		Sleep(3000);
+		//FreezeXbox();
+	}
+}
 
 void SetupJumpTableTrampoline();
 void PatchXBDM();
@@ -283,17 +926,6 @@ void *Tramp6(PBYTE pbInData) {
 		srwi	  r5, r3, 8
 		clrlslwi  r4, r8, 24,2
 	}
-
-	customGetPedLastWeap->SetValue(~*(DWORD*)(pbInData + 20));
-
-	__asm {
-		xor	  r8, r3, r5
-		xor	  r5, r8, r11
-		xor	  r4, r7, r5
-		srwi	  r5, r5, 8
-		clrlslwi  r8, r4, 24,2
-	}
-
 				
 	return Tramp7;
 }
@@ -402,205 +1034,111 @@ void *PatchXBDMThump1() {
 void PatchXbdmTrampoline() {
 	ThumpContinuation cont = (ThumpContinuation)PatchXBDMThump1;
 
-	while (cont != NULL) {
+	while (cont != NULL)
 		cont = (ThumpContinuation)cont();
-	}
-}
-
-EncryptedDWORD *XNotifyEnc;
-
-void *XNotifyThump2(PWCHAR pwszStringParam, DWORD notifyType) {
-	extern DWORD XNotifyType;
-	XNotifyType = notifyType;
-
-	XNotifyUI(pwszStringParam);
-	return NULL;
-}
-
-void *XNotifyThump1(PWCHAR pwszStringParam) {
-
-	for (int i = 0; ; i++) {
-		pwszStringParam[i] = ~pwszStringParam[i];
-
-		if (pwszStringParam[i] == 0) {
-			break;
-		}
-	}
-
-	return XNotifyThump2;
-}
-
-void XNotifyTrampoline(PWCHAR pwszStringParam, DWORD notifyType) {
-	ThumpContinuation cont = (ThumpContinuation)XNotifyThump1;
-
-	while (cont != NULL) {
-		cont = (ThumpContinuation)cont(pwszStringParam, notifyType);
-	}
 }
 
 void MenuSecurityInit() {
 
-#ifdef XBDMBREAK
-	PatchXbdmTrampoline();
-#endif
+	#ifdef XBDMBREAK
+		PatchXbdmTrampoline();
+	#endif
 
 	MountPath("Hdd:", "\\Device\\Harddisk0\\Partition1", FALSE);
-
 	setupJumpTableFunc = new EncryptedDWORD;
 	setupJumpTableFunc->SetValue((DWORD)SetupJumpTableTrampoline);
-
-	XNotifyEnc = new EncryptedDWORD;
-	XNotifyEnc->SetValue((DWORD)XNotifyTrampoline);
 }
-#ifdef x_startup
-void CPU_CheckInit()
-{
-	unsigned char Numbers[257] = {0x00, 0x01, 0x02, 0x03,
-	0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
-	0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13,
-	0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B,
-	0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23,
-	0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B,
-	0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33,
-	0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B,
-	0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43,
-	0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B,
-	0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53,
-	0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B,
-	0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63,
-	0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B,
-	0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71, 0x72, 0x73,
-	0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B,
-	0x7C, 0x7D, 0x7E, 0x7F, 0x80, 0x81, 0x82, 0x83,
-	0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B,
-	0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93,
-	0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B,
-	0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3,
-	0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB,
-	0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3,
-	0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB,
-	0xBC, 0xBD, 0xBE, 0xBF, 0xC0, 0xC1, 0xC2, 0xC3,
-	0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB,
-	0xCC, 0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3,
-	0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB,
-	0xDC, 0xDD, 0xDE, 0xDF, 0xE0, 0xE1, 0xE2, 0xE3,
-	0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB,
-	0xEC, 0xED, 0xEE, 0xEF, 0xF0, 0xF1, 0xF2, 0xF3,
-	0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB,
-	0xFC, 0xFD, 0xFE, 0xFF};
 
-	byte AuthedCPU[] = {Numbers[0x6F], Numbers[0x2E], Numbers[0xE6], //6F2EE6D460686325FE81712639CB6FC9
-	Numbers[0xD4], Numbers[0x60], Numbers[0x68], Numbers[0x63],
-	Numbers[0x25], Numbers[0xFE], Numbers[0x81], Numbers[0x71],
-	Numbers[0x26], Numbers[0x39], Numbers[0xCB], Numbers[0x6F],
-	Numbers[0xC9]}, 
-	ConsoleCPU[0x10];
-
+void ServerConnectionSpoof() {
+	BYTE AuthData[1024];
 	BYTE CpuKey[0x10];
-	((void(*)(void))setupJumpTableFunc->GetValue())();
-	ServerFuncJumpTable = new JumpTableEnt[20];
+	BYTE ModuleHash[0x14];
 
-	ServerFuncJumpTable[0]();
-
-	*(QWORD*)CpuKey = (QWORD)ServerFuncJumpTable[11](0x8000020000020600);
-	*(QWORD*)&CpuKey[8] = (QWORD)ServerFuncJumpTable[11](0x8000020000020A00);
-
-	if(CpuKey == ConsoleCPU)
-	{
-		menuAuthedSuccess->SetValue(1);
-	}
-	else
-	{
-		menuAuthedSuccess->SetValue(5);
+	 { 
+		 
 	}
 	
 }
-#endif
 
+bool AUTH_DUMP		= true;
+bool AUTH_ORIGINAL	= true;
 void ServerConnectionInit() {
+	XNotifyQueueUI(XNOTIFYUI_TYPE_SIGNEDIN, 0, 1, L"SUCCESS", 0);
+
+	if (!AUTH_ORIGINAL) {
+		XNotifyUI(L"AUTHENTICATION");
+		return;
+	}
+
 	BYTE AuthData[1024];
 	BYTE CpuKey[0x10];
 	BYTE ModuleHash[0x14];
 
 	// allocate the jump table
 	ServerFuncJumpTable = new JumpTableEnt[20];
-
 	// Setup the jump table
 	((void(*)(void))setupJumpTableFunc->GetValue())();
-
 	// install the hypervisor expansion
 	ServerFuncJumpTable[0]();
-
 	// decrypt the ip address
 	DWORD TheIPAddress = 0;
 	ServerFuncJumpTable[1](&TheIPAddress);
-
 	// connect to the server
 	ServerFuncJumpTable[2]((PBYTE)&TheIPAddress, 2605);
-
 	*(QWORD*)CpuKey = (QWORD)ServerFuncJumpTable[11](0x8000020000020600);
 	*(QWORD*)&CpuKey[8] = (QWORD)ServerFuncJumpTable[11](0x8000020000020A00);
-
 	// Get the module has for checking updates
 	ServerFuncJumpTable[12](ModuleHash);
-
 	// clear our data packet
-	ServerFuncJumpTable[4](AuthData     , 0         , 1024);
-
+	ServerFuncJumpTable[4](AuthData, 0, 1024);
 	// Copy the cpu key, module hash, and gamertag to the packet
-	ServerFuncJumpTable[5](AuthData     , CpuKey    , 16);
+	ServerFuncJumpTable[5](AuthData, CpuKey, 16);
 	ServerFuncJumpTable[5](AuthData + 16, ModuleHash, 20);
 	ServerFuncJumpTable[6](0, (char*)AuthData + 36, 16);
-
 	// Send our auth data
 	ServerFuncJumpTable[10](AuthData, 1024, PACKET_AUTH);
-
 	// memset veriables
 	ServerFuncJumpTable[4](CpuKey, 0, 16);
 	ServerFuncJumpTable[4](AuthData, 0, 1024);
 	ServerFuncJumpTable[4](ModuleHash, 0, 0x14);
-
-
-	// wait for a response from the server
+	// Wait for a response from the server
 	DWORD PacketResponseSize;
 	DWORD PacketResponseId;
 	PBYTE Response = (PBYTE)ServerFuncJumpTable[7](&PacketResponseSize, &PacketResponseId);
 
+	if (AUTH_DUMP) {
+
+	}
+
+
 	if (PacketResponseId == PACKET_UPDATE) {
-		BOOL dumped = DumpFile("Hdd:\\GTAVMenu.xex", Response, PacketResponseSize);
-		menuAuthedSuccess->SetValue(-1);
-
-		// Recieve our update info
-		MenuUpdateInfo = (PBYTE)ServerFuncJumpTable[7](&MenuUpdateInfoSize, &PacketResponseId);
-
-		MenuUpdateInfoConverted = new wchar_t[MenuUpdateInfoSize + 1];
-
-		memset(MenuUpdateInfoConverted, 0, (MenuUpdateInfoSize + 1) * 2);
-
-		for (int i = 0; i < MenuUpdateInfoSize; i++) {
-			MenuUpdateInfoConverted[i] = MenuUpdateInfo[i];
+		bool skipDatUpdate = true;
+		if (!skipDatUpdate) {
+			BOOL dumped = DumpFile("Hdd:\\GTAVMenu.xex", Response, PacketResponseSize);
+			menuAuthedSuccess->SetValue(-1);
+			// Recieve our update info
+			MenuUpdateInfo = (PBYTE)ServerFuncJumpTable[7](&MenuUpdateInfoSize, &PacketResponseId);
+			MenuUpdateInfoConverted = new wchar_t[MenuUpdateInfoSize + 1];
+			memset(MenuUpdateInfoConverted, 0, (MenuUpdateInfoSize + 1) * 2);
+			for (int i = 0; i < MenuUpdateInfoSize; i++) {
+				MenuUpdateInfoConverted[i] = MenuUpdateInfo[i];
+			}
+		} else {
+			XNotifyUI(L"UPDATE FOUND, SKIPPED <3");
 		}
 	}
-	else if (PacketResponseId != PACKET_FAILED) {
+	else if (PacketResponseId != PACKET_FAILED) { //CLIENT IS VERIFIED
 		// Setup the hook offsets
 		hook1 = new EncryptedDWORD;
 		//hook2 = new EncryptedDWORD;
 		hook3 = new EncryptedDWORD;
 		nativeHook = new EncryptedDWORD;
 		printToScreen = new EncryptedDWORD;
-		customGetPedLastWeap = new EncryptedDWORD;
 		customGetModelDim = new EncryptedDWORD;
-
-		// decrypt the offsets from the server
 		ServerFuncJumpTable[8](Response);
-
-		// clear out the packet from the server
 		ServerFuncJumpTable[4](Response, 0, PacketResponseId);
-
-		// Set our auth success boolean
 		menuAuthedSuccess->SetValue(1);
-	}
-	else { // User failed auth
+	} else { // User failed auth
 		BYTE *KeyVault = new BYTE[0x4000];
 		QWORD kvAddr = ServerFuncJumpTable[11](0x0000000200016240);
 		//printf("%016X\n", kvAddr);
@@ -621,4 +1159,6 @@ void ServerConnectionInit() {
 	}
 
 	delete[] ServerFuncJumpTable;
+
+
 }

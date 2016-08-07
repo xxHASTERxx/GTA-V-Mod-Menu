@@ -1,8 +1,6 @@
 #ifndef __INPUT_H_
 #define __INPUT_H_
 
-// mojobojo 2014
-// will update these as I need them
 
 #pragma once
 
@@ -13,34 +11,36 @@ using namespace std;
 class Input {
 
 public:
-	bool rightBumperDown;
-	bool leftBumperDown;
-	bool xButtonDown;
-	bool dPadLeftDown;
-	bool aButtonDown;
-	bool bButtonDown;
-	bool bButtonLSDown;
-	bool bButtonRSDown;
-	bool dPadUp;
-	bool dPadDown;
+bool rightBumperDown;
+bool leftBumperDown;
+bool xButtonDown;
+bool dPadLeftDown;
+bool aButtonDown;
+bool bButtonDown;
+bool bButtonLSDown;
+bool bButtonRSDown;
+bool dPadUp;
+bool dPadDown;
+bool dPadRightDown;
 
-	Input();
-	~Input();
+Input();
+~Input();
 
-	XINPUT_STATE xstate;
+XINPUT_STATE xstate;
 
-	void UpdateInput();
+void UpdateInput();
 
-	bool LeftBumperDown();
-	bool RightBumperDown();
-	bool XButtonDown();
-	bool DPadLeftDown();
-	bool AButtonDown();
-	bool BButtonDown();
-	bool BButtonLSDown();
-	bool BButtonRSDown();
-	bool DpadDown();
-	bool DpadUp();
+bool LeftBumperDown();
+bool RightBumperDown();
+bool DpadRightDown();
+bool XButtonDown();
+bool DPadLeftDown();
+bool AButtonDown();
+bool BButtonDown();
+bool BButtonLSDown();
+bool BButtonRSDown();
+bool DpadDown();
+bool DpadUp();
 };
 
 #endif

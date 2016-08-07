@@ -1,5 +1,3 @@
-//File goes in TitanClient Folder
-
 #include "ServerCommunicator.h"
 #include "DataManager.h"
 
@@ -89,4 +87,7 @@ bool	Network_Receive(SOCKET Sock, PVOID Data, DWORD Size)
 	}
 
 	return true;
+
+
 }
+
