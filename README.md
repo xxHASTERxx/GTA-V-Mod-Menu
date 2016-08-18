@@ -12,6 +12,6 @@ This Menu is Open Source meaning you need to report the updates back to this Git
 
 and credits are due upon Request
 
-skype hastervideos@gmail.com 
+skype XEX_XSC
 
 xxHASTERxx © 2012-2015
